@@ -281,6 +281,14 @@ $('#file').addEventListener('change',async e=>{
   au.src=URL.createObjectURL(f);
   try{await au.play();say('Now playing: '+f.name.replace(/\.[^.]+$/,''))}catch(_){say('Press play to start your song.')}
 });
+/* music starts on her first tap (browsers block sound before any interaction) */
+let musicTried=false;
+function autoStart(){
+  if(musicTried)return;musicTried=true;
+  au.src=MUSIC_SRC;au.play().catch(()=>{au.removeAttribute('src');au.load();say('No song found yet. Tap ♫ to choose one.')});
+}
+['pointerdown','keydown'].forEach(ev=>addEventListener(ev,e=>{if(e.target.closest&&e.target.closest('#player'))return;autoStart()},{once:false}));
+au.play&&(au.src=MUSIC_SRC,au.play().then(()=>{musicTried=true}).catch(()=>{au.removeAttribute('src');au.load()}));
 $('#up').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('#file').click()}});
 </script>
 </body>
